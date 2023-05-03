@@ -2,16 +2,26 @@ package com.greet.api.controller;
 
 import com.greet.api.config.CurrentUser;
 import com.greet.api.dto.LocalUser;
+import com.greet.api.dto.UserInfo;
+import com.greet.api.service.UserService;
 import com.greet.api.util.CommonUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 public class UserController {
+
+    private UserService userService;
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/user/me")
     @PreAuthorize("hasRole('USER')")
@@ -40,5 +50,10 @@ public class UserController {
     @PreAuthorize("hasRole('MODERATOR')")
     public ResponseEntity<?> getModeratorContent() {
         return ResponseEntity.ok("Moderator content goes here");
+    }
+
+    @RequestMapping(value = "/active/{id}", method = RequestMethod.GET)
+    public List<UserInfo> getActiveUsers(@PathVariable long id) {
+        return userService.getAllUsers(id);
     }
 }

@@ -1,6 +1,7 @@
 package com.greet.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.greet.api.dto.UserStatus;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -41,6 +42,8 @@ public class AppUser implements Serializable {
     private String password;
 
     private String provider;
+
+    private String status = UserStatus.ACTIVE.name();
 
     // bidirectional many-to-many association to Role
     @JsonIgnore

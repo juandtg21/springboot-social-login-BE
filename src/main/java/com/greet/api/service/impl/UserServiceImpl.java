@@ -1,8 +1,6 @@
 package com.greet.api.service.impl;
 
-import com.greet.api.dto.LocalUser;
-import com.greet.api.dto.SignUpRequest;
-import com.greet.api.dto.SocialProvider;
+import com.greet.api.dto.*;
 import com.greet.api.exception.OAuth2AuthenticationProcessingException;
 import com.greet.api.exception.UserAlreadyExistAuthenticationException;
 import com.greet.api.model.AppUser;
@@ -23,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -112,5 +111,38 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<AppUser> findUserById(Long id) {
         return userRepository.findById(id);
+    }
+
+    @Override
+    public void updateUserStatus(long id) {
+        Optional<AppUser> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            user.get().setStatus(UserStatus.DISCONNECTED.name());
+            userRepository.save(user.orElse(null));
+        }
+    }
+    @Override
+    public List<UserInfo> getAllUsers(Long id) {
+        var roles = roleRepository.findAllByName(Role.ROLE_USER);
+        return userRepository.findByIdNotAndRolesIn(id, roles)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserInfo convertToDto(AppUser user) {
+        return buildUserInfo(user);
+    }
+
+    private UserInfo buildUserInfo(AppUser user) {
+        List<String> roleStrings = user.getRoles()
+                .stream()
+                .map(Role::toString)
+                .collect(Collectors.toList());
+
+        return new UserInfo(user.getId().toString(),
+                user.getDisplayName(), user.getPicture(),
+                user.getEmail(), user.getStatus(), roleStrings);
     }
 }
