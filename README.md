@@ -1,2 +1,2 @@
-# login
-Spring boot login with oauth2, google and facebok
+# SpringBoot-Social-Login-using-OAuth2-and-Google-Facebook
+This Spring Boot application provides social login functionality with OAuth2 using Google and Facebook as authentication providers. It uses Spring Security to secure the application and implements OAuth2 flow for user authentication. The application uses a custom OAuth2 user service to retrieve user details from Google and Facebook and store them in the local database. This allows users to authenticate with their Google or Facebook credentials and access the application's protected resources
