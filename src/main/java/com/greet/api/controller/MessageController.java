@@ -17,12 +17,13 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 @Controller
 public class MessageController {
 
-    private static final String QUEUE_MESSAGES = "/topic/messages/";
+    private static final String QUEUE_MESSAGES = "/queue/{0}/messages";
 
     private final MessageRepository messageRepository;
 
@@ -56,7 +57,8 @@ public class MessageController {
         message.setContent(messageDto.getMessage());
         messageRepository.save(message);
         messageDto.setCreatedDate(message.getCreatedDate());
-        simpMessagingTemplate.convertAndSend(QUEUE_MESSAGES + chatRoomId, messageDto);
+        String destination = MessageFormat.format(QUEUE_MESSAGES, chatRoomId);
+        simpMessagingTemplate.convertAndSend(destination, messageDto);
     }
     @MessageMapping("/reload")
     @SendToUser("/queue/reload")
