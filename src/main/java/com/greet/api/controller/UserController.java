@@ -52,7 +52,8 @@ public class UserController {
         return ResponseEntity.ok("Moderator content goes here");
     }
 
-    @RequestMapping(value = "/active/{id}", method = RequestMethod.GET)
+    @GetMapping(value = "/active/{id}")
+    @PreAuthorize("hasRole('USER')")
     public List<UserInfo> getActiveUsers(@PathVariable long id) {
         return userService.getAllUsers(id);
     }
