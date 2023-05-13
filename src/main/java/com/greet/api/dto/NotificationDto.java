@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationDto {
-    private Long messageId;
-    private String senderName;
+    private String email;
+    private String receiver;
+    private String isTyping;
+
+    private Long chatRoomId;
 }

@@ -21,4 +21,6 @@ public class MessageDto {
 
     private Long senderId;
 
+    private String receiver;
+
 }

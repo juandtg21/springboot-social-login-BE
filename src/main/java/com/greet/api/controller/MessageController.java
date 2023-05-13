@@ -1,7 +1,6 @@
 package com.greet.api.controller;
 
-import com.greet.api.dto.ChatRoomDto;
-import com.greet.api.dto.MessageDto;
+import com.greet.api.dto.*;
 import com.greet.api.model.AppUser;
 import com.greet.api.model.ChatRoom;
 import com.greet.api.model.Message;
@@ -13,9 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -23,7 +20,9 @@ import java.util.List;
 @Controller
 public class MessageController {
 
-    private static final String QUEUE_MESSAGES = "/queue/{0}/messages";
+    private static final String QUEUE_MESSAGES = "/user/{0}/queue/{1}";
+
+    private static final String MESSAGES = "messages";
 
     private final MessageRepository messageRepository;
 
@@ -57,18 +56,20 @@ public class MessageController {
         message.setContent(messageDto.getMessage());
         messageRepository.save(message);
         messageDto.setCreatedDate(message.getCreatedDate());
-        String destination = MessageFormat.format(QUEUE_MESSAGES, chatRoomId);
+        String destination = MessageFormat.format(QUEUE_MESSAGES, chatRoomId, MESSAGES);
         simpMessagingTemplate.convertAndSend(destination, messageDto);
     }
     @MessageMapping("/reload")
-    @SendToUser("/queue/reload")
-    public ResponseEntity<List<ChatRoomDto>> getChatRoomsByUser(Long userId) {
+    public void getChatRoomsByUser(Long userId) {
+        AppUser appUser = userService.findUserById(userId).orElseThrow();
+        String destination = MessageFormat.format(QUEUE_MESSAGES, appUser.getEmail(), "reload");
         List<ChatRoomDto> chatRooms = chatRoomServiceImpl.findChatRoomsByUser(userId);
-        return ResponseEntity.ok(chatRooms);
+        simpMessagingTemplate.convertAndSend(destination, ResponseEntity.ok(chatRooms));
+
     }
-    @MessageMapping("/reload/messages")
-    @SendToUser("/queue/reload/messages")
-    public List<MessageDto> getChatRoomMessages(@PathVariable Long chatRoomId) {
-        return chatRoomServiceImpl.getChatRoomMessages(chatRoomId);
+    @MessageMapping("/typing")
+    public void getChatRoomMessages(NotificationDto notificationDto) {
+        String destination = MessageFormat.format(QUEUE_MESSAGES, notificationDto.getChatRoomId(), "typing");
+        simpMessagingTemplate.convertAndSend(destination, notificationDto);
     }
 }

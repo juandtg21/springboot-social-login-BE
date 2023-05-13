@@ -32,20 +32,23 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
-
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                Claims claims = tokenProvider.getClaimsFromToken(jwt);
-                UserDetails userDetails = customUserDetailsService.loadUserById(Long.parseLong(claims.getSubject()));
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
+            UsernamePasswordAuthenticationToken authentication = getAuthentication(jwt);
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    public UsernamePasswordAuthenticationToken getAuthentication(String jwt) {
+        if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+            Claims claims = tokenProvider.getClaimsFromToken(jwt);
+            UserDetails userDetails = customUserDetailsService.loadUserById(Long.parseLong(claims.getSubject()));
+            return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        }
+        return null;
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {
