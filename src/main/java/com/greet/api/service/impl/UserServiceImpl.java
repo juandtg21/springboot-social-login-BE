@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
         final HashSet<Role> roles = new HashSet<>();
         roles.add(roleRepository.findByName(Role.ROLE_USER));
         user.setRoles(roles);
-        user.setProvider(formDTO.getSocialProvider().getProviderType());
+        user.setProvider(formDTO.getSocialProvider());
         user.setEnabled(true);
         user.setProviderUserId(formDTO.getProviderUserId());
         return user;

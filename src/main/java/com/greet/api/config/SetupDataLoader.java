@@ -42,20 +42,25 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         Role userRole = createRoleIfNotFound(Role.ROLE_USER);
         Role adminRole = createRoleIfNotFound(Role.ROLE_ADMIN);
         Role modRole = createRoleIfNotFound(Role.ROLE_MODERATOR);
-        createUserIfNotFound("admin@test.com", Set.of(userRole, adminRole, modRole));
+        createUserIfNotFound("admin@test.com", Set.of(userRole, adminRole, modRole), "Admin");
+        createUserIfNotFound("juandtg@test.com", Set.of(userRole), "juandtg");
+        createUserIfNotFound("david@test.com", Set.of(userRole), "david");
+        createUserIfNotFound("teban@test.com", Set.of(userRole), "teban");
+        createUserIfNotFound("tavo@test.com", Set.of(userRole), "tavo");
         alreadySetup = true;
     }
 
     @Transactional
-    AppUser createUserIfNotFound(final String email, Set<Role> roles) {
+    AppUser createUserIfNotFound(final String email, Set<Role> roles, String displayName) {
         AppUser user = userRepository.findByEmail(email);
         if (user == null) {
             user = new AppUser();
-            user.setDisplayName("Admin");
+            user.setDisplayName(displayName);
             user.setEmail(email);
             user.setPassword(passwordEncoder.encode("admin123"));
             user.setRoles(roles);
-            user.setProvider(SocialProvider.LOCAL.getProviderType());
+            user.setProvider(SocialProvider.LOCAL);
+            user.setPicture("//ssl.gstatic.com/accounts/ui/avatar_2x.png");
             user.setEnabled(true);
             Date now = Calendar.getInstance().getTime();
             user.setCreatedDate(now);

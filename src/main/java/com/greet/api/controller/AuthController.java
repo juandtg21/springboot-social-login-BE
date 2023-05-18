@@ -8,6 +8,7 @@ import com.greet.api.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -57,7 +58,9 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/logout/{id}", method = RequestMethod.GET)
-    public void updateUserStatus(@PathVariable long id) {
-        userService.updateUserStatus(id);
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> updateUserStatus(@PathVariable long id) {
+        //TODO change user status..
+        return ResponseEntity.ok().build();
     }
 }

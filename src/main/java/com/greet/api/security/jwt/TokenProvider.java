@@ -48,12 +48,6 @@ public class TokenProvider {
                 .getBody();
     }
 
-    public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parser().setSigningKey(appProperties.getAuth().getTokenSecret()).parseClaimsJws(token).getBody();
-
-        return Long.parseLong(claims.getSubject());
-    }
-
     public boolean validateToken(String authToken) {
         try {
             Jwts.parser().setSigningKey(appProperties.getAuth().getTokenSecret()).parseClaimsJws(authToken);
