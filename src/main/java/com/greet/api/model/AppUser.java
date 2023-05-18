@@ -35,7 +35,7 @@ public class AppUser implements Serializable {
     @Column(name = "DISPLAY_NAME")
     private String displayName;
     @Column(name = "picture", length = 1000)
-    private String picture;
+    private String picture = "//ssl.gstatic.com/accounts/ui/avatar_2x.png";
     @JsonIgnore
     @Column(name = "created_date", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)

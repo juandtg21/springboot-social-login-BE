@@ -18,7 +18,8 @@ public class Message {
     @Column(name = "MESSAGE_ID")
     private Long messageId;
 
-    @Column(name = "content", nullable = false)
+    @Lob
+    @Column(name = "content", columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci", nullable = false)
     private String content;
 
     @Column(name = "created_date", nullable = false, updatable = false)

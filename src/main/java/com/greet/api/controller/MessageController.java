@@ -20,9 +20,11 @@ import java.util.List;
 @Controller
 public class MessageController {
 
-    private static final String QUEUE_MESSAGES = "/user/{0}/queue/{1}";
+    private static final String QUEUE_MESSAGES = "/topic/{0}.{1}.{2}";
 
     private static final String MESSAGES = "messages";
+
+    private static final String CHAT_ROOM = "chatroom";
 
     private final MessageRepository messageRepository;
 
@@ -56,20 +58,20 @@ public class MessageController {
         message.setContent(messageDto.getMessage());
         messageRepository.save(message);
         messageDto.setCreatedDate(message.getCreatedDate());
-        String destination = MessageFormat.format(QUEUE_MESSAGES, chatRoomId, MESSAGES);
+        String destination = MessageFormat.format(QUEUE_MESSAGES, MESSAGES, CHAT_ROOM, chatRoomId);
         simpMessagingTemplate.convertAndSend(destination, messageDto);
     }
     @MessageMapping("/reload")
     public void getChatRoomsByUser(Long userId) {
         AppUser appUser = userService.findUserById(userId).orElseThrow();
-        String destination = MessageFormat.format(QUEUE_MESSAGES, appUser.getEmail(), "reload");
+        String destination = MessageFormat.format(QUEUE_MESSAGES, "reload", "user", appUser.getEmail());
         List<ChatRoomDto> chatRooms = chatRoomServiceImpl.findChatRoomsByUser(userId);
         simpMessagingTemplate.convertAndSend(destination, ResponseEntity.ok(chatRooms));
 
     }
     @MessageMapping("/typing")
     public void getChatRoomMessages(NotificationDto notificationDto) {
-        String destination = MessageFormat.format(QUEUE_MESSAGES, notificationDto.getChatRoomId(), "typing");
+        String destination = MessageFormat.format(QUEUE_MESSAGES, "typing", CHAT_ROOM, notificationDto.getChatRoomId());
         simpMessagingTemplate.convertAndSend(destination, notificationDto);
     }
 }

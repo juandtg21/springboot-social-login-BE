@@ -60,6 +60,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
             user.setPassword(passwordEncoder.encode("admin123"));
             user.setRoles(roles);
             user.setProvider(SocialProvider.LOCAL);
+            user.setPicture("//ssl.gstatic.com/accounts/ui/avatar_2x.png");
             user.setEnabled(true);
             Date now = Calendar.getInstance().getTime();
             user.setCreatedDate(now);

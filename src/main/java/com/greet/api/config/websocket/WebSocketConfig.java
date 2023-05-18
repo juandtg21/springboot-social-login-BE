@@ -1,6 +1,7 @@
 package com.greet.api.config.websocket;
 
 import com.greet.api.security.jwt.TokenAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -20,6 +21,18 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    @Value("${spring.rabbitmq.host}")
+    private String host;
+
+    @Value("${spring.rabbitmq.port}")
+    private int port;
+
+    @Value("${spring.rabbitmq.username}")
+    private String username;
+
+    @Value("${spring.rabbitmq.password}")
+    private String password;
+
     private final TokenAuthenticationFilter tokenAuthenticationFilter;
 
     public WebSocketConfig(TokenAuthenticationFilter tokenAuthenticationFilter) {
@@ -28,8 +41,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic/", "/queue/", "/user/");
-        //config.setUserDestinationPrefix("/user");
+        config.enableStompBrokerRelay("/topic", "/queue", "/exchange")
+                .setRelayHost(host)
+                .setRelayPort(port)
+                .setClientLogin(username)
+                .setClientPasscode(password)
+                .setAutoStartup(true)
+                .setSystemLogin(username)
+                .setSystemPasscode(password);
+
         config.setApplicationDestinationPrefixes("/api"); // sets the prefix for messages that are handled by @MessageMapping annotated methods
     }
 
